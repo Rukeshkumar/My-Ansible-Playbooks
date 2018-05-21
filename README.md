@@ -1,176 +1,83 @@
-**Deployment of Automated Health Check for Backup Exec**
-========================================================
+# DORM Health Check for Backup Exec - Deployment Guide
 
-**Purpose:** The supplied script is designed to run a series of Backup
-Exec Daily health checks, generate output, and send the health check
-results via SMTP to [Operations
-Center](https://oc.onerun.hpecorp.net/ui5/index.html#home) for
-presentation within []{#_Toc465775986 .anchor}the DORM report. The
-script sends the same health check results to the account's distribution
-List along with the log file for debugging.
+### Purpose
 
-**Supported Products & Versions:** Backup Exec & Media Server with
-versions of BE 13.X, 14.X, 15.X, 16.X for Windows and Unix/Linux Media
-OS.
+As part of DXC governance and compliance requirements, there’s a need to ensure that ALL DXC and Customer’s Workloads and services are available and functional EVERY DAY.
 
-**Health Checks for Data Protector:**
+The Health/Start of the day checks are basically a list of checks that are done to ensure/validate that the identified technologies, systems, and services are available, and functional as expected. These are not monitoring checks and do not replace a monitoring tool/solution. The primary focus is to validate that all systems are available and functional at the start of the day. Should any issue be identified, then relevant actions must be taken to restore the service at the earliest.
 
--   Service Availability
+All systems and services that affect a Client’s business/productivity are in-scope. For example production workloads, development workloads that are critical for the customer’s business
 
--   Backup Devices Availability
+### Supported OS Versions
+* Microsoft Windows Server 2012
+* Microsoft Windows server 2008
 
--   Backup Database Backed up
+### Supported Product Versions
+* Backup Exec 13.x,14.x,15.x,16.x.
 
--   Server Capacity
+### Supported Powershell Versions
+* Powershell Version 3.0 and Above.
 
--   Capacity Storage
+_NB: The supported versions often mean/include only the versions against which the automation team were able to test with. It may support other versions too._
 
--   Success Rate
+### Implementation Overview
+![](../images/DORM_HC_BackupExec.PNG)
 
--   Consecutive Failure
+### Health Checks  
+* The script has been developed based on the health checks identified by Global Capability Standards SMEs. Here's the link to the document: _to be added_
 
--   Long Running Backups for 12hr
+Global Health Checks | Low Level Checks | Check Description |
+---------------------|------------------|------------------|
+Service Level-Success Rate | SuccessRate | This checks the calculates the BSR ratio of all the servers based on 7 day backup report |
+Service Level-Consecutive Failure  |  ConsecutiveFailure  | This verifies the status of the backup server in the last three days |
+Service Level-Long Running Backups-12 Hours | LongRunning | This checks for the backups which are running more than 12 hours |
+Service Level-Long Running Backups-24 Hours | LongRunning | This checks for the backups which are running more than 24 hours |
+Availability-Backup Devices Available | Availability | This checks for the availability of backup tapes |
+Availability-Backup Service Available | Availability | This checks for the availability of backup  services |
+Availability-Backup Database Backed up | Backup | This verifies whether the backup Master server is properly backed up. |
+Capacity-Storage Capacity | Capacity | This check verifies the storage capacity |
+Capacity-Tape Capacity | Capacity | This check verifies the Tape capacity |
 
--   Long Running Backups for 24hr
+ 
+### Deployment Package: 
 
-**Technical Implementation Overview: **
+This deployment package contains the following files.
 
-![](media/image1.png){width="5.695430883639545in"
-height="3.1388156167979004in"}
+File | Type | Description
+-----|------|-------------
+```DORM_HC_BackupExec_Client.ps1``` | Script | The PowerShell script to perform the required checks with in the server.
+```DORM_HC_BackupExec_Client.cfg``` | Configuration file | Configuration file with customizable parameters that are required for Availability check.
+```DORM_HC_BackupExec_Master.ps1``` | script | The PowerShell script to perform the required checks, and to email the results to OC
+```DORM_HC_BackupExec_Master.cfg``` | configuration file | Configuration file with customizable parameters 
 
-**Deployment Package:** This deployment package contains the following
-files.
 
-  **File**                                **Description**
-  --------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------
-  DORM\_HC\_BackupExec\_Deployment.docx   It contains the deployment instructions.
-  DORM\_HC\_BackupExec\_Master.ps1        The PowerShell script is responsible for retrieving the required data and sending the results via SMTP.
-  DORM\_HC\_BackupExec\_Master.cfg        The configuration file is to be deployed along with the script for setup and customization purposes.
-  DORM\_HC\_BackupExec\_Master.ps1        This PowerShell script is responsible for capturing the windows Cell manager command output in a centralized shared directory.
-  DORM\_HC\_BackupExec\_Master.cfg        This configuration file is to be deployed along with the DORM\_HC\_BackupExec\_Master.ps1 for setup and customization purposes.
-  SSH-session.zip                         This SSH module for PowerShell should be imported to allow SSH connectivity from Windows PowerShell to the destination hosts.
+### Deployment Steps
 
-**Deployment Steps**
-====================
+#### 1. CONFIGURATION
+*	 The configuration file in the deployment package MUST be customized based on the instructions provided inline.
+*	This is an IMPORTANT step as it ensures that the various parameters and thresholds are customized as per the account or environmental requirements. Else, the resulting reports might be erroneous.
+*	The output/input directories can be customized as required.
 
-### Step \#1 -- CONFIGURATION CUSTOMIZATION 
+#### 2. DEPLOYMENT
+*	The script (```DORM_HC_BackupExec_Client.ps1```) and the Configuration file (```DORM_HC_BackupExec_Client.cfg```) should be copied to directory on to a directory/filesystem such as ```C:/Monitoring/Healthcheck/BackupExec```.
+*	It is recommended to keep the script and config file in the same directory.
+*	The script (```DORM_HC_BackupExec_Master.ps1```) and the Configuration file (```DORM_HC_BackupExec_Master.cfg```) should be copied to directory on to a directory/filesystem such as ```C:/Monitoring/Healthcheck/BackupExec```.
+*	It is recommended to keep the script and config file in the same directory.
+*	Note: All log files generated by the script will be stored in the same directory by default.
 
-Copy the configuration file "DORM\_HC\_BackupExec\_Master.cfg" to a
-location such as C:/Monitoring/BackupExec and customize the same with
-account specific details. NOTE: *It is important that each and every
-parameter in the configuration file is configured correctly. The
-configuration file contains the required description about each
-parameter*.
+#### 3. SCHEDULING
 
-### Step \#2 -- DEPLOYMENT 
+Scheduler | Windows Task Scheduler / Cron
+----------|-------------------------------
+Schedule | Daily at 6 AM (As per Local timezone)
+Script Usage | ```.\DORM_HC_BackupExec_Master.ps1```
+Firewall Ports | SMTP Protocol (Port 25)
 
-The client script has been developed to generate output for various
-commands, and then dump the output to a Shared Directory which is
-accessible from a centralized server such as a Jump Server or a Master
-server.
+#### 4. CONFIRMATION
 
-The Master script has been developed for Windows and Unix/Linux Media
-servers environment. In case of BackupExec running on Windows platform,
-the Master script will read the output from each of the files generated
-by the client script. In case BackupExec media servers is hosted on
-Unix/Linux platform, it will connect through SSH module to run the cell
-manager commands and it will generate a health check report, and email
-it to the required recipients.
+An output log will be generated in the same folder where the script resides, named ```DORM_HC_BackupExec_Master.log```
+This log can be used to analyze output and do error checking, and will be overwritten each time the script is executed. The full report will be saved in the same folder and also sent to the recipients defined in the configuration file.
 
-Pre-requisite (*applicable only for Backup Exec Media servers on Unix/Linux)*
------------------------------------------------------------------------------
+A successful deployment will lead to a health check result being populated in the Operation Center DORM reports shortly after the scheduled execution time. Note that while ```Test_Mode``` is enabled in the configuration, no results will show up in OC.
 
-In order to allow SSH connectivity from Windows to the Unix/Linux
-BackupExec Media servers, we're using a PowerShell Module. Additional
-details can be found in this below URL (and the SSH module for
-PowerShell can be downloaded from the same. It is also supplied along
-with the deployment package):
-
-<http://www.powershelladmin.com/wiki/SSH_from_PowerShell_using_the_SSH.NET_library#Downloads>
-
-Steps to deploy the SSH-Sessions module:
-
--   Copy the attached SSH-Session zip file, unblock the zip file (in the
-    file properties)
-
--   Then unzip and place the unzipped folder in one of your PowerShell
-    modules folders which is usually
-    "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\Modules"
-
-> Note:
-
--   SSH Modules require PowerShell version 2 or later. The DLL file
-    requires .NET 3.5 or later.
-
--   The PowerShell module folders should be listed in the
-    variable \$env:PSModulePath.
-
--   This is from our test environment (for e.g., PATH:
-    C:\\windows\\system32\\WindowsPowerShell\\v1.0\\Modules)
-
-The configuration file for the **Client and Master Script** should be
-customized for each BackupExec Servers, for each account. The script and
-the customized configuration file should be copied to either
-'C:\\Monitoring\\BackupExec \\' or any other appropriate location. A
-directory should be created in one of the centralized servers such as
-the Jump Server or a Master Server in the environment, and shared with
-all the BackupExec windows and Linux/Unix Media Servers.
-
-### Step \#3 -- SCHEDULING 
-
-The DORM\_HC\_BackupExec\_Master.ps1 script should be scheduled and
-executed from each of the BackupExec windows and Linux/Unix Media
-Servers.
-
-+-----------------------------------+-----------------------------------+
-| **Scheduler**                     | Windows Task Scheduler            |
-+===================================+===================================+
-| **Schedule**                      | Every day at 06:00 AM             |
-+-----------------------------------+-----------------------------------+
-| **Script Usage**                  | DORM\_HC\_BackupExec\_Client.ps1  |
-|                                   | -FileName                         |
-|                                   | DORM\_HC\_BackupExec\_Client.cfg  |
-|                                   | or                                |
-|                                   |                                   |
-|                                   | Run.bat                           |
-+-----------------------------------+-----------------------------------+
-| **Execution Interface**           | Windows PowerShell                |
-+-----------------------------------+-----------------------------------+
-
-The DORM\_HC\_BackupExec\_Master.ps1 script should be scheduled and
-executed from one of the centralized servers such as a Jump Server or a
-BackupExec Master server that has access to the Shared Directory.
-
-+-----------------------------------+-----------------------------------+
-| **Scheduler**                     | Windows Task Scheduler            |
-+===================================+===================================+
-| **Schedule**                      | Every day at 06:15 AM             |
-+-----------------------------------+-----------------------------------+
-| **Script Usage**                  | DORM\_HC\_BackupExec\_Master.ps1  |
-|                                   | -FileName                         |
-|                                   | DORM\_HC\_BackupExec\_Master.cfg  |
-|                                   |                                   |
-|                                   | Or Run.bat                        |
-+-----------------------------------+-----------------------------------+
-| **Execution Interface**           | Windows PowerShell                |
-+-----------------------------------+-----------------------------------+
-| **Firewall Port(s)**              | SMTP Protocol over port 25        |
-+-----------------------------------+-----------------------------------+
-
-### Step \#4 -- CONFIRMATION 
-
-An output log will be generated in the same folder as the script, named
-DORM\_HC\_BackupExec\_Master.log. This log can be used to analyze output
-and do error checking, and will be overwritten each time the script is
-executed. The retention of the log can be modified using the Log
-retention parameter in the configuration file.
-
-A successful deployment will lead to a health check result being
-populated in the Operation Center DORM report shortly after the script
-is executed. Note that while 'Test\_Mode' is enabled in the
-configuration file, no results will show up in Operation Center.
-
-For support with this process, or confirming the success of the script,
-respond to the email in which this package was supplied, or
-alternatively send an email to:
-[dormcheck\_deployment@hpe.com](mailto:dormcheck_deployment@hpe.com?subject=Exchange%202010%20automation%20script)
+For support with this process please raise an [issue in GitHub](https://github.dxc.com/BIONIX-ANZ/dorm-healthchecks/issues/new)
