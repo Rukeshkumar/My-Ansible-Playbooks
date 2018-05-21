@@ -69,6 +69,12 @@ File | Type | Description
 
 Scheduler | Windows Task Scheduler / Cron
 ----------|-------------------------------
+Schedule | Daily at 5 30 AM (As per Local timezone)
+Script Usage | ```.\DORM_HC_BackupExec_Client.ps1```
+Firewall Ports | SMTP Protocol (Port 25)
+
+Scheduler | Windows Task Scheduler / Cron
+----------|-------------------------------
 Schedule | Daily at 6 AM (As per Local timezone)
 Script Usage | ```.\DORM_HC_BackupExec_Master.ps1```
 Firewall Ports | SMTP Protocol (Port 25)
