@@ -1,87 +1,223 @@
-# DORM Health Check for Cisco SAN Switch - Deployment Guide
+**DataProtector automation to generate consolidated Backup Report**
+===================================================================
 
-### Purpose
+Purpose of the script:
+======================
 
-As part of DXC governance and compliance requirements, there’s a need to ensure that ALL DXC and Customer’s Workloads and services are available and functional EVERY DAY.
+-   The script will be scheduled to run every day on all the
+    Dataprotector servers to collect the status of the backup servers
+    and generates a 2 day backup report and stores in a network share.
 
-The Health/Start of the day checks are basically a list of checks that are done to ensure/validate that the identified technologies, systems, and services are available, and functional as expected. These are not monitoring checks and do not replace a monitoring tool/solution. The primary focus is to validate that all systems are available and functional at the start of the day. Should any issue be identified, then relevant actions must be taken to restore the service at the earliest.
+-   The monthly report generation script is intended to read the 2 day
+    backup report which is stored in the network share and generates a
+    single consolidation report which contains the backup report of last
+    30 days.
 
-All systems and services that affect a Client’s business/productivity are in-scope. For example production workloads, development workloads that are critical for the customer’s business
+Business Justification:
+=======================
 
-### Supported OS Versions
-* Microsoft Windows Server 2012
-* Microsoft Windows server 2008
+**Dataprotector Dashboard**: This report provides backup status of all
+the Dataprotector Backup servers in the environment. Hence reducing time
+and human effort.
 
-### Supported Product Versions
-* All Cisco Fabric Switchs.
+> **Dataset Collected:** The script collects the status of all the
+> Dataprotector Backup servers in the environment.
 
-### Supported Powershell Versions
-* Powershell Version 3.0 and Above.
+Pre-Requisites:
+===============
 
-_NB: The supported versions often mean/include only the versions against which the automation team were able to test with. It may support other versions too._
+-   PowerShell version 3 or above
 
-### Implementation Overview
-![](../images/DORM_HC_Cisco-Switch.PNG)
+-   Common share folder to store the 2 day report which is the result of
+    the Client Script ( We need to create a new folder ) 
 
-### Health Checks  
-* The script has been developed based on the health checks identified by Global Capability Standards SMEs. Here's the link to the document: _to be added_
+-   Destination Path where the consolidated report is to be stored
 
-Global Health Checks | Low Level Checks | Check Description |
----------------------|------------------|------------------|
-Cisco SAN Switch Availability | Availability | This checks for the availability of san Switchs like Environment Fan,temparture,module,error logging,interface brief   |
+-   Service Account to schedule the script in Task Scheduler
 
- 
-### Deployment Package: 
+Deployment Package:
+===================
 
 This deployment package contains the following files.
 
-File | Type | Description
------|------|-------------
-```DORM_HC_Cisco-Switch.ps1``` | Script | The PowerShell script to perform the required checks, and to email the results to OC
-```DORM_HC_Cisco-Switch.cfg``` | Configuration file | Configuration file with customizable parameters that are required for Availability check.
-```Run.bat``` | script |The batch script to perform the required checks with in the server.
+  **File**                                             **Description**
+  ---------------------------------------------------- ---------------------------------------------------------------------------------------------------------------
+  Dataprotector\_Unified\_Reporting\_Deployment.docx   This document.
+  DataProtector-Report-ClientScript.ps1                PowerShell script to be scheduled daily on each Dataprotector Master servers to generate 20 day backup report
+  DataProtector-Report-ClientScript.cfg                Configuration script for DataProtector-Report-ClientScript.ps1 to provide input.
+  DataProtector-Report-Masterscript.ps1                PowerShell script for consolidating the multiple 7 day backup reports of all the DataProtector servers
+  DataProtector-Report-Masterscript.Cfg                Configuration script for DataProtector-Report-Masterscript.Cfg to provide input.
 
+Installation Steps 
+===================
 
-### Deployment Steps
+DataProtector-Report-ClientScript.ps1
+-------------------------------------
 
-#### 1. CONFIGURATION
-*	 The configuration file in the deployment package MUST be customized based on the instructions provided inline.
-*	This is an IMPORTANT step as it ensures that the various parameters and thresholds are customized as per the account or environmental requirements. Else, the resulting reports might be erroneous.
-*	The output/input directories can be customized as required.
+### Step \#1 -- DataProtector-Report-ClientScript -- CONFIGURATION
 
-#### 2. DEPLOYMENT
-*	The script (```Run.bat```) should be copied to directory on BackupExec windows server in the directory/filesystem such as ```C:/Monitoring/Healthcheck/CiscoSan```.
-*	It is recommended to keep the script and config file in the same directory.
-*	The script (```DORM_HC_Cisco-Switch.ps1```) and the Configuration file (```DORM_HC_Cisco-Switch.cfg```) should be copied to directory on Jump server in the directory/filesystem such as ```C:/Monitoring/Healthcheck/CiscoSan```.
-*	It is recommended to keep the script and config file in the same directory.
-*	Note: All log files generated by the script will be stored in the same directory by default.
+-   Open the configuration file named
+    DataProtector-Report-ClientScript.cfg
 
-#### 3. PRE-REQUISITE
-*   In order to allow SSH connectivity from Windows to the Cisco SaN Switches, we are using a PowerShell Module. Additional details can be found in this below URL (and the SSH module for PowerShell can be downloaded from the same. It is also supplied along with the deployment package):(```http://www.powershelladmin.com/wiki/SSH_from_PowerShell_using_the_SSH.NET_library#Downloads```)
-### Steps to deploy the SSH-Sessions module:
-*	Copy the attached SSH-Session zip file, unblock the zip file (in the file properties)
-*	Then unzip and place the unzipped folder in one of your PowerShell modules folders which is usually “C:\windows\system32\WindowsPowerShell\<version>\Modules”
-*	(```PS C:\<PATH>Import-Module SSH-Sessions```)
-### Note: 
-*	Modules require PowerShell version 3 or above. The DLL file requires .NET 3.5 or above. 
-*	The PowerShell module folders should be listed in the variable (```$env:PSModulePath```). 
-*	This is from our test environment (```for eg., PATH: C:\windows\system32\WindowsPowerShell\<version>\Modules```)
+-   Set the configuration parameters shown in the below image as per the
+    corresponding instructions. These values typically should not be
+    changed following the initial setup.
 
+![](../images/DORM_HC_BackupExec.PNG)
 
-#### 3. SCHEDULING
+**\[GENERAL\]**
 
-Scheduler | Windows Task Scheduler / Cron
-----------|-------------------------------
-Schedule | Daily at 6 AM (As per Local timezone)
-Script Usage | ```.\Run.bat```
-Firewall Ports | SMTP Protocol (Port 25)
+**Version** -- This field is only to be modified by the script
+developers. In the event of a change, the configuration file will be
+resent.
 
+**Account --** This field should be set to the name of the account as
+per standards. This value is provided along with the deployment package
+communication.
 
-#### 4. CONFIRMATION
+**Technology** -- This field will be set to the correct value by the
+developer, and hence will not need to be amended.
 
-An output log will be generated in the same folder where the script resides, named ```DORM_HC_Cisco-Switch.log```
-This log can be used to analyze output and do error checking, and will be overwritten each time the script is executed. The full report will be saved in the same folder and also sent to the recipients defined in the configuration file.
+**NetworkShare --** This field needs to be filled with the network share
+path where the 20 day reports are stored.
 
-A successful deployment will lead to a health check result being populated in the Operation Center DORM reports shortly after the scheduled execution time. Note that while ```Test_Mode``` is enabled in the configuration, no results will show up in OC.
+**Windows\_Servers --** This field should contain the list of Windows
+servers where the client script is to be run.
 
-For support with this process please raise an [issue in GitHub](https://github.dxc.com/BIONIX-ANZ/dorm-healthchecks/issues/new)
+**Unix\_Servers --** This field should contain the list of Unix / Linux
+servers where the client script is to be run.
+
+**\[OMNIRPT\_LOCATION\]**
+
+**Unix\_Omnirpt\_dir --** This filed is used to set the Omnirpt
+installed location and this needs to change only when the installed
+location gets changed.
+
+### Step \#2 -- DataProtector-Report-ClientScript - DEPLOYMENT 
+
+The script and the configuration file should be copied to a proper
+location in each and every Dataprotector Master server from where the
+NetworkShare is accessible.
+
+### Step \#3 -- DataProtector-Report-ClientScript - SCHEDULING 
+
+The script should be scheduled and executed from the designated
+deployment server.
+
+  **Scheduler**             Windows Task Scheduler
+  ------------------------- ---------------------------------------
+  **Schedule**              Every day at 07:00 AM (recommended)
+  **Script Usage**          DataProtector-Report-ClientScript.ps1
+  **Execution Interface**   Windows PowerShell
+  **Firewall Port(s)**      SMTP Protocol over port 25
+
+### 
+
+### Step \#4 -- DataProtector-Report-ClientScript - CONFIRMATION 
+
+A report gets generated as a spreadsheet and stored in the Network Share
+which is configured in Client script configuration file.
+
+DataProtector-Report-Masterscript.ps1
+-------------------------------------
+
+### Step \#1 -- DataProtector-Report-Masterscript - CONFIGURATION
+
+-   Open the configuration file named
+    Dataprotector\_Backup\_Report\_MasterScript.cfg
+
+-   Set the configuration parameters shown in the below image as per the
+    corresponding instructions. These values typically should not be
+    changed following the initial setup.
+
+![](../images/DORM_HC_BackupExec.PNG)
+
+**\[GENERAL\]**
+
+**Version** -- This field is only to be modified by the script
+developers. In the event of a change, the configuration file will be
+resent.
+
+**Account --** This field should be set to the name of the account as
+per standards. This value is provided along with the deployment package
+communication.
+
+**Technology** -- This field will be set to the correct value by the
+developer, and hence will not need to be amended.
+
+**NetworkShare --** This field needs to be filled with the network share
+path where the 20 day reports are stored.
+
+**OutputPath --** This field should be set to the path where the
+consolidated report to be stored.
+
+### Step \#2 -- DataProtector-Report-Masterscript - DEPLOYMENT 
+
+The script and the modified configuration file should be copied to a
+centralized location from where the NetworkShare is accessible.
+
+### Step \#3 -- DataProtector-Report-Masterscript - SCHEDULING 
+
+The script should be scheduled and executed from the designated
+deployment server.
+
+  **Scheduler**             Windows Task Scheduler
+  ------------------------- ---------------------------------------
+  **Schedule**              Every day at 10:00 AM (recommended)
+  **Script Usage**          DataProtector-Report-Masterscript.ps1
+  **Execution Interface**   Windows PowerShell
+  **Firewall Port(s)**      SMTP Protocol over port 25
+
+### Step \#4 -- DataProtector-Report-Masterscript - CONFIRMATION 
+
+An output log will be generated in the same folder as the script, named
+DataProtector-Report-Masterscript.log. This log can be used to analyze
+output and do error checking, and will be overwritten each time the
+script is executed.
+
+A consolidated report is generated and stored in the given output path.
+
+**Sample output -**
+
+a.  **DataProtector-Report-ClientScript.ps1 :**
+
+![](../images/DORM_HC_BackupExec.PNG)
+
+a.  **DataProtector-Report-Masterscript.ps1:**
+
+![](../images/DORM_HC_BackupExec.PNG)
+
+Technical Implementation Details:
+=================================
+
+![](../images/DORM_HC_BackupExec.PNG)
+
++-----------------------------------+-----------------------------------+
+| **Script Repository**             | **DataProtector-Report-ClientScri |
+|                                   | pt.ps1                            |
+|                                   | is scheduled locally on each      |
+|                                   | Master Dataprotector Server **    |
+|                                   |                                   |
+|                                   | **DataProtector-Report-Masterscri |
+|                                   | pt.ps1                            |
+|                                   | is scheduled on only 1 server **  |
++===================================+===================================+
+| **Schedule**                      | **Daily (Between 5 AM -- 6 AM)**  |
++-----------------------------------+-----------------------------------+
+| **Username Requirements**         | **Any service account **          |
++-----------------------------------+-----------------------------------+
+| **Password Requirements**         | -   **Never expire**              |
+|                                   |                                   |
+|                                   | -   **Should not require password |
+|                                   |     change at first logon**       |
+|                                   |                                   |
+|                                   | -   **Allowed characters          |
+|                                   |     (Alphabets, numbers and       |
+|                                   |     special characters (!, @, \#, |
+|                                   |     (, ) )**                      |
++-----------------------------------+-----------------------------------+
+| **Access Level**                  | **Read, Write & Execute ONLY      |
+|                                   | service account**                 |
++-----------------------------------+-----------------------------------+
+| **Firewall Port(s)**              | **SSH Protocol over port 25**     |
++-----------------------------------+-----------------------------------+
