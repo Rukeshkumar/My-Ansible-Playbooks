@@ -166,9 +166,7 @@ Scheduler | Windows Task Scheduler |
 Schedule | Every day (Between 5 AM -- 6 AM) (recommended) |
 Script Usage | DataProtector-Report-ClientScript.ps1 |
 Username Requirements | Any service account |
-Password Requirements | - Never expire 
-                        - Should not require password change at first logon
-                        - Allowed characters (Alphabets, numbers and special characters (!, @, \#, (, ) ) |
+Password Requirements | Never expire and Should not require password change at first logon Allowed characters (Alphabets, numbers and special characters (!, @, \#, (, ) ) |
 Access Level | Read, Write & Execute ONLY service account |
 Execution Interface | Windows PowerShell |
 Firewall Port(s) | SMTP Protocol over port 25 |
