@@ -195,6 +195,7 @@ Technical Implementation Details:
 
 ![](../images/DORM_HC_BackupExec.PNG)
 
+TaskName | Description |
 ----------|------------------------|
 Schedule | Every day (Between 5 AM -- 6 AM) (recommended) |
 Script Usage | DataProtector-Report-ClientScript.ps1 |
