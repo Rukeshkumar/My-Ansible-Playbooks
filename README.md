@@ -191,7 +191,7 @@ Technical Implementation Details:
 =================================
 
 ![](../images/DORM_HC_BackupExec.PNG)
-
+-------------------|------------------------|
 |Script Repository | DataProtector-Report-ClientScript.ps1 is scheduled locally on each Master Dataprotector Server DataProtector-Report-Masterscript.ps1 is scheduled on only 1 server |
 | Schedule                      | Daily (Between 5 AM -- 6 AM)  |
 | Username Requirements        | Any service account  |
