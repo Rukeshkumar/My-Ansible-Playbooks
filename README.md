@@ -40,13 +40,13 @@ Deployment Package:
 
 This deployment package contains the following files.
 
-  **File**                                             **Description**
-  ---------------------------------------------------- ---------------------------------------------------------------------------------------------------------------
-  Dataprotector\_Unified\_Reporting\_Deployment.docx   This document.
-  DataProtector-Report-ClientScript.ps1                PowerShell script to be scheduled daily on each Dataprotector Master servers to generate 20 day backup report
-  DataProtector-Report-ClientScript.cfg                Configuration script for DataProtector-Report-ClientScript.ps1 to provide input.
-  DataProtector-Report-Masterscript.ps1                PowerShell script for consolidating the multiple 7 day backup reports of all the DataProtector servers
-  DataProtector-Report-Masterscript.Cfg                Configuration script for DataProtector-Report-Masterscript.Cfg to provide input.
+File | Description |
+-----|-------------|
+Dataprotector\_Unified\_Reporting\_Deployment.docx | This document |
+DataProtector-Report-ClientScript.ps1 | PowerShell script to be scheduled daily on each Dataprotector Master servers to generate 20 day backup report. |
+DataProtector-Report-ClientScript.cfg | Configuration script for DataProtector-Report-ClientScript.ps1 to provide input. |
+DataProtector-Report-Masterscript.ps1 | PowerShell script for consolidating the multiple 7 day backup reports of all the DataProtector servers |
+DataProtector-Report-Masterscript.Cfg | Configuration script for DataProtector-Report-Masterscript.Cfg to provide input. |
 
 Installation Steps 
 ===================
