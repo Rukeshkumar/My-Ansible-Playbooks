@@ -104,12 +104,12 @@ NetworkShare is accessible.
 The script should be scheduled and executed from the designated
 deployment server.
 
-  **Scheduler**             Windows Task Scheduler
-  ------------------------- ---------------------------------------
-  **Schedule**              Every day at 07:00 AM (recommended)
-  **Script Usage**          DataProtector-Report-ClientScript.ps1
-  **Execution Interface**   Windows PowerShell
-  **Firewall Port(s)**      SMTP Protocol over port 25
+Scheduler | Windows Task Scheduler |
+----------|------------------------|
+Schedule | Every day at 07:00 AM (recommended) |
+Script Usage | DataProtector-Report-ClientScript.ps1 |
+Execution Interface | Windows PowerShell |
+Firewall Port(s) | SMTP Protocol over port 25 |
 
 ### 
 
@@ -161,12 +161,12 @@ centralized location from where the NetworkShare is accessible.
 The script should be scheduled and executed from the designated
 deployment server.
 
-  **Scheduler**             Windows Task Scheduler
-  ------------------------- ---------------------------------------
-  **Schedule**              Every day at 10:00 AM (recommended)
-  **Script Usage**          DataProtector-Report-Masterscript.ps1
-  **Execution Interface**   Windows PowerShell
-  **Firewall Port(s)**      SMTP Protocol over port 25
+Scheduler | Windows Task Scheduler |
+----------|------------------------|
+Schedule | Every day at 10:00 AM (recommended) |
+Script Usage | DataProtector-Report-Masterscript.ps1 |
+Execution Interface | Windows PowerShell |
+Firewall Port(s) | SMTP Protocol over port 25 |
 
 ### Step \#4 -- DataProtector-Report-Masterscript - CONFIRMATION 
 
@@ -192,32 +192,12 @@ Technical Implementation Details:
 
 ![](../images/DORM_HC_BackupExec.PNG)
 
-+-----------------------------------+-----------------------------------+
-| **Script Repository**             | **DataProtector-Report-ClientScri |
-|                                   | pt.ps1                            |
-|                                   | is scheduled locally on each      |
-|                                   | Master Dataprotector Server **    |
-|                                   |                                   |
-|                                   | **DataProtector-Report-Masterscri |
-|                                   | pt.ps1                            |
-|                                   | is scheduled on only 1 server **  |
-+===================================+===================================+
-| **Schedule**                      | **Daily (Between 5 AM -- 6 AM)**  |
-+-----------------------------------+-----------------------------------+
-| **Username Requirements**         | **Any service account **          |
-+-----------------------------------+-----------------------------------+
-| **Password Requirements**         | -   **Never expire**              |
-|                                   |                                   |
-|                                   | -   **Should not require password |
-|                                   |     change at first logon**       |
-|                                   |                                   |
-|                                   | -   **Allowed characters          |
-|                                   |     (Alphabets, numbers and       |
-|                                   |     special characters (!, @, \#, |
-|                                   |     (, ) )**                      |
-+-----------------------------------+-----------------------------------+
-| **Access Level**                  | **Read, Write & Execute ONLY      |
-|                                   | service account**                 |
-+-----------------------------------+-----------------------------------+
-| **Firewall Port(s)**              | **SSH Protocol over port 25**     |
-+-----------------------------------+-----------------------------------+
+|------------------|---------------------------------|
+|Script Repository | DataProtector-Report-ClientScript.ps1 is scheduled locally on each Master Dataprotector Server DataProtector-Report-Masterscript.ps1 is scheduled on only 1 server |
+| Schedule                      | Daily (Between 5 AM -- 6 AM)  |
+| Username Requirements        | Any service account  |
+| Password Requirements         | - Never expire 
+                                  - Should not require password change at first logon
+                                  - Allowed characters (Alphabets, numbers and special characters (!, @, \#, (, ) ) |
+| Access Level                  |Read, Write & Execute ONLY  service account |
+| Firewall Port(s)              | SSH Protocol over port 25    |
